@@ -7,12 +7,12 @@ contract CloudSystem {
   // Store Data -->
 
   // Contract owner
-  address public owner = msg.sender;
+  address public owner;
 
   // Structure to set interval for user
   struct Interval {
-    uint256 from;
-    uint256 to;
+    uint from;
+    uint to;
   }
 
   // Store user's interval mapped with user's address
@@ -28,6 +28,14 @@ contract CloudSystem {
   mapping (address => bytes32) public userSecretKey;
 
 
+  // Constructor -->
+  constructor() {
+    owner = msg.sender;
+    uint from = block.timestamp;
+    uint to = from + 10 days;
+    User[msg.sender] = Interval(from, to);
+  }
+
 
   // Functions -->
 
@@ -40,12 +48,12 @@ contract CloudSystem {
     _;
   }
 
-  function setHashFieldId(bytes32 hashId) public restricted returns (bool) {
+  function setHashFileId(bytes32 hashId) public restricted returns (bool) {
     fileHashId[hashId] = true;
     return true;
   }
 
-  function checkHashFieldId(bytes32 hashId) public view returns (bool) {
+  function checkHashFileId(bytes32 hashId) public view returns (bool) {
     return fileHashId[hashId];
   }
 
@@ -55,36 +63,31 @@ contract CloudSystem {
   }
 
   function getSecretKey() public view returns (bytes32) {
-    return userSecretKey[msg.sender];
+    uint current_date = block.timestamp;
+    if(current_date >= User[msg.sender].from && current_date <= User[msg.sender].to) {
+      return userSecretKey[msg.sender];
+    }
+    else
+      return bytes32(bytes("User Unauthorized"));
   }
 
   function setCipherText(bytes32 hashId, bytes32 cipherText) public restricted returns (bool) {
-    if(!checkHashFieldId(hashId)) return false;
+    if(!checkHashFileId(hashId)) return false;
     fileCipherText[hashId] = cipherText;
     return true;
   }
 
   function getCipherText(bytes32 hashId) public view returns (bytes32) {
-    if(!checkHashFieldId(hashId)) return "false";
+    if(!checkHashFileId(hashId)) return "File Doesn't Exist!";
     return fileCipherText[hashId];
   }
 
-  function setInterval(address userAddress, uint from, uint to) public restricted returns (bool) {
-    if(from >= to) return false;
+  function setInterval(address userAddress, uint no_of_days) public restricted returns (bool) {
+    uint from = block.timestamp;
+    uint to = from + no_of_days*1 days;
+    // if(from >= to) return false;
     User[userAddress] = Interval(from, to);
     return true;
   }
 
-  function getInterval() public view returns (uint256[2] memory) {
-    return [User[msg.sender].from, User[msg.sender].to];
-  }
-
-
-  // function signBook(bytes32 name) public {
-  //   guests.push(name);
-  //   emit SignatureAdded("New guest signature!", name);
-  // }
-  // function getNames() public view returns (bytes32[] memory) {
-  //   return guests;
-  // }
 }

@@ -1,47 +1,37 @@
 <template>
-  <div v-if="isDrizzleInitialized" id="app">
-    <h1>Set Secret Key</h1>
-    <drizzle-contract-form
-      contractName="CloudSystem"
-      method="setSecretKey"
-      :placeholders="['User Address', 'Secret Key']"
-      class="pa-20"
-    />
-    <h2>Keys:</h2>
-    <ul v-if="getNames">
-      <!-- <li v-for="(name, i) in getNames" :key="i">{{ utils.toUtf8(name) }}</li> -->
-      <li>{{ utils.toUtf8(getNames) }}</li>
-    </ul>
-  </div>
-  <div v-else>Loading application...</div>
+  <v-app>
+    <v-app-bar app color="primary" dark>
+      <div class="d-flex align-center">
+        <v-img
+          alt="Vuetify Logo"
+          class="shrink mx-5"
+          contain
+          src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png"
+          transition="scale-transition"
+          width="40"
+        />
+
+        <h2>Ethereum Cloud Security Framework</h2>
+      </div>
+
+      <v-spacer></v-spacer>
+    </v-app-bar>
+
+    <v-main>
+      <v-container>
+        <router-view></router-view>
+      </v-container>
+    </v-main>
+  </v-app>
 </template>
 
 <script>
-import { mapGetters } from "vuex";
 export default {
   name: "App",
-  computed: {
-    ...mapGetters("drizzle", ["drizzleInstance", "isDrizzleInitialized"]),
-    ...mapGetters("contracts", ["getContractData"]),
-    getNames() {
-      let data = this.getContractData({
-        contract: "CloudSystem",
-        method: "getSecretKey",
-      });
-      if (data === "loading") return false;
-      return data;
-    },
-    utils() {
-      return this.drizzleInstance.web3.utils;
-    },
-  },
-  created() {
-    this.$store.dispatch("drizzle/REGISTER_CONTRACT", {
-      contractName: "CloudSystem",
-      method: "getSecretKey",
-      methodArgs: [],
-    });
-  },
+  components: {},
+  data: () => ({
+    //
+  }),
 };
 </script>
 
@@ -55,7 +45,7 @@ export default {
   margin-top: 60px;
 }
 
-.pa-20 {
-  padding: 20px !important;
+.light-border {
+  border: 1px solid gainsboro;
 }
 </style>
